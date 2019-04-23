@@ -118,8 +118,7 @@ export default {
           this.consoleScanner = conRet.msg;
           console.log(this.consoleScanner);
         }
-         this.running = ipcRenderer.sendSync("status", true);
-
+        this.running = ipcRenderer.sendSync("status", true);
       } catch (error) {}
     },
     createJsons() {

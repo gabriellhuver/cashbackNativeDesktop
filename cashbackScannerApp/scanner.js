@@ -13,28 +13,39 @@ var settings = {
 }
 
 async function init() {
-    settings = await util.loadJson('settings.json')
-    util.showInfo({
-        msg: JSON.stringify(settings),
-        data: settings
-    })
-    util.showInfo({
-        msg: 'Loading data...',
-        data: null
-    })
-    urls = await util.loadJson('urls.json')
-    productsMetada = await util.loadJson('productsMetadata.json')
-    cashbacks = await util.loadJson('cashbacks.json')
-    process.send({
-        msg: JSON.stringify(urls),
-        data: urls
-    })
-    await findProducts();
-    await scanProductsMetadata();
+    await loadDatabase();
+    for (let index = 0; index < urls.length; index++) {
+        const url = urls[index];
+        await findProducts(url.url);
+        await scanProductsMetadata();
+    }
 }
 
 init()
-//console.log('teste')
+
+
+async function loadDatabase() {
+    return new Promise(async function (resolve, reject) {
+        settings = await util.loadJson('settings.json');
+        urls = await util.loadJson('urls.json');
+        productsMetada = await util.loadJson('productsMetadata.json');
+        cashbacks = await util.loadJson('cashbacks.json');
+        util.showInfo({
+            msg: JSON.stringify(settings),
+            data: settings
+        });
+        util.showInfo({
+            msg: 'Loading data...',
+            data: null
+        });
+        util.showInfo({
+            msg: JSON.stringify(urls),
+            data: urls
+        })
+
+        resolve()
+    })
+}
 
 async function scanProductsMetadata() {
     return new Promise(async function (resolve, reject) {
@@ -43,7 +54,7 @@ async function scanProductsMetadata() {
                 const productUrl = products[index];
                 let productMetada = await crawler.getProductDataFromUrl(productUrl);
                 process.send({
-                    msg: 'product found '+JSON.stringify(productMetada),
+                    msg: 'product found ' + JSON.stringify(productMetada),
                     data: productMetada
                 });
                 if (productMetada.cashback >= settings.CASHBACK_VALUE) {
@@ -66,14 +77,11 @@ async function scanProductsMetadata() {
     })
 }
 
-async function findProducts() {
+async function findProducts(url) {
     return new Promise(async function (resolve, reject) {
         try {
             products = []
-            let url = urls[Math.floor(Math.random() * urls.length)].url;
-            while (lastUrl == url) {
-                url = urls[Math.floor(Math.random() * urls.length)].url;
-            }
+
             await getBestProductsFromUrl(url);
             process.send({
                 msg: products.length + ' Products found on ' + url,
