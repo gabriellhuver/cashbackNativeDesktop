@@ -40,7 +40,7 @@
       </h4>
     </div>
     <div>
-      <div class="table-responsive">
+      <div class="table-responsive" v-show="cashbacks.length > 0">
         <table class="table table-striped table-sm">
           <thead>
             <tr>
@@ -49,7 +49,6 @@
               <th>Cod</th>
               <th>Cashback</th>
               <th>Url</th>
-              <th>Remove</th>
             </tr>
           </thead>
           <tbody>
@@ -60,10 +59,6 @@
               <td>{{item.cashback}}</td>
               <td>
                 <a @click="open(item.url)" href="#">Url</a>
-              </td>
-
-              <td style="width:36px">
-                <button type="button" class="btn btn-danger" @click="removeItem(index)">Remove</button>
               </td>
             </tr>
           </tbody>
